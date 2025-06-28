@@ -1,7 +1,8 @@
 from fastai.vision.all import *
 import gradio as gr
+import os
 
-# Load the model (your model file is pet_classifier.pkl)
+# Load the model
 learn = load_learner('pet_classifier.pkl')
 
 # Define prediction function
@@ -9,22 +10,14 @@ def classify_pet(img):
     pred, idx, probs = learn.predict(img)
     return f"Prediction: {pred} (Confidence: {probs[idx]:.2f})"
 
-examples = [
-    ["Persian cat.jpeg"],
-    ["Siamese kitten.jpeg"],
-    ["Top 14 Reasons Why Chihuahuas Are Better Than….jpeg"],
-    ["Pug.jpeg"]
-]
+# Automatically load images from 'img/' directory
+image_folder = "img"
+examples = [[os.path.join(image_folder, fname)] for fname in os.listdir(image_folder)
+            if fname.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
 description = """
-**Example Images:**
-
-🐱 Persian  &nbsp;&nbsp;&nbsp;&nbsp;
-🐱 Birman &nbsp;&nbsp;&nbsp;&nbsp;
-🐶 Chihuahua &nbsp;&nbsp;&nbsp;&nbsp;
-🐶 Pug
-
-(Click on any image below to try it!)
+**Example Images:**  
+Click on any image below to try it!
 """
 
 # Create Gradio interface
@@ -34,9 +27,8 @@ demo = gr.Interface(
     outputs="text",
     examples=examples,
     title="FastAI Pet Classifier",
-    description="Upload a cat or dog image and get the predicted breed."
+    description=description
 )
 
 # Launch app
 demo.launch()
-
